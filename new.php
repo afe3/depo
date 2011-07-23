@@ -1,59 +1,75 @@
-/* afe
-*  form kontrol sýnýfý
+<?php
+/** afe
+*   form kontrol sinifi
 */
-class formKontrol {
-	public $form;
-	public function emailKontrol($deger) {
-		if (!eregi ("^.+@.+\\\\..+$", $deger)) {
-			$this->form=false;
-		}
-		return $this->form;
-	}
-	public function mesajZamanlama($zamanlama=25) {
-		// zamanlama baþlangýçtan sonra
-		if(empty($_SESSION['baslat'])) {
-			$_SESSION['baslat\']=time();
-		} else {
-			if($_SESSION['baslat'] < time()-$zamanlama) {
-				unset($_SESSION['baslat']);
-			}
-			$this->form=false;
-		}
-		return $this->form;
-	}
-	public function encokDeger($degisken, $deger) {
-		// string en çok deðerini ölç
-		if($arg >= $deger) {
-			$this->form=false;
-		}
-		return $this->form;
-	}
-	public function enazDeger($degisken, $deger) {
-		//string en az deðerini ölç
-		if($arg <= $deger) {
-			$this->form=false;
-		}
-		return $this->form;
-	}
+error_reporting(~E_ALL & E_NOTICE);
+session_start();
+class rgx {
+    public static $email="/([\s]*)([_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*([ ]+|)@([]+|)([a-zA-Z0-9-]+\.)+([a-zA-Z]{2,}))([\s]*)/i";
+}
+interface formOlculeri {
+   const SURE='5';   //form gÃ¶nderim sÃ¼resi
+   const ENCOK='10'; //en Ã§ok string eleman sayÄ±sÄ±
+   const ENAZ='2';   //en az string eleman sayÄ±sÄ±
+}
+class formKontrol extends rgx implements formOlculeri {
+    public $form;
+    public function emailKontrol($deger) {
+        if (preg_match(parent::$email, $deger)) {
+            $this->form=true;
+        }
+        return $this->form;
+    }
+    public function mesajZamanlama($zamanlama=formOlculeri::SURE) {
+        // zamanlama baslangictan sonra
+        if(empty($_SESSION['baslat'])) {
+            $_SESSION['baslat']=time();
+        } else {
+            if($_SESSION['baslat'] < time()-$zamanlama) {
+                unset($_SESSION['baslat']);
+            }
+            $this->form=false;
+        }
+        return $this->form;
+    }
+    public function strgOlc($deger) {
+        $cik=strlen($deger);
+        return $cik;
+    }
+    public function encokDeger($degisken, $deger) {
+        // string en cok degerini olc
+        if($degisken > $deger) {
+            $this->form=false;
+        }
+        return $this->form;
+    }
+    public function enazDeger($degisken, $deger) {
+        //string en az degerini olc
+        if($degisken < $deger) {
+            $this->form=false;
+        }
+        return $this->form;
+    }
 }
 class formHatalari extends Exception {}
 $formSet=new formKontrol();
 try {
-	if($formSet->emailKontrol($_POST['email'])==false) {
-		throw new formHatalari('hata 2');
-	}
-	elseif($formSet->mesajZamanlama()==false) {
-		throw new formHatalari('hata 3');
-	}
-	elseif($formSet->encokDeger($_POST['getVar'])==false) {
-		throw new formHatalari('hata 4');
-	}
-	elseif($formSet->enazDeger($_POST['getVar'])==false) {
-		throw new formHatalari('hata 5');
-	}
-	else {
-		$form=true;
-	}
+    if($formSet->emailKontrol($_GET['form']['email'])==false) {
+        throw new formHatalari('hata 1');
+    }
+    elseif($formSet->mesajZamanlama()==false) {
+        throw new formHatalari('hata 2');
+    }
+    elseif($formSet->encokDeger($formSet->strgOlc($_GET['form']['alDeger']),formKontrol::ENCOK)==false) {
+        throw new formHatalari('hata 3');
+    }
+    elseif($formSet->enazDeger($formSet->strgOlc($_GET['form']['alDeger']),formKontrol::ENAZ)==false) {
+        throw new formHatalari('hata 4');
+    }
+    else {
+        $form=true;
+    }
 } catch(formHatalari $fErr) {
-	echo $fErr->getMessage();
+    echo $fErr->getMessage();
 }
+?>

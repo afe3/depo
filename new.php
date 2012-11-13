@@ -73,4 +73,7 @@ try {
     echo $fErr->getMessage();
 }
 print_r($_SERVER);
+/*
+xx
+*/
 ?>

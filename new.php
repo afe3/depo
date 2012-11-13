@@ -72,4 +72,5 @@ try {
 } catch(formHatalari $fErr) {
     echo $fErr->getMessage();
 }
+print_r($_SERVER);
 ?>

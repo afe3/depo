@@ -74,6 +74,7 @@ try {
 }
 print_r($_SERVER);
 /*
-xx
-*/
+xxyyyyyyy
+*/ 
+
 ?>
